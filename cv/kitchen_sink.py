@@ -55,8 +55,8 @@ def model_selection_cv(atoms_file, pairs_file, type_of_pred='regression', type_o
 
             else:
                 continue
-        return result_dict
-        
+    return result_dict
+
 '''
     for name, model in models:
         cv_results = model_selection.cross_val_score(model, X_train, Y_train, cv=kfold, scoring=scoring)
