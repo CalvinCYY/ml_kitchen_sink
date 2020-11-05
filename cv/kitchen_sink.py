@@ -45,13 +45,18 @@ def model_selection_cv(atoms_file, pairs_file, type_of_pred='regression', type_o
 
     for model in models:
         for grid in grids:
-            if type_of_opt = 'random':
-                if name.keys() == grid.keys():
-                    result = random_opt(model, grid, scoring=scoring, cv=kfold, verbose=1, random_state=rs, n_jobs=-1)
-                    result_dict
+            if model == grid:
+                if type_of_opt = 'random':
+                    result = random_opt(estimator=model.value(), param_deistrubution=grid.value(), n_iter =50, cv=kfold, verbose=1, random_state=rs, n_jobs=-1)
+                    result_dict[model] = result
+                elif type_of_opt = 'grid':
+                    result = grid_opt(estimator=model.value(), param_grid=grid.value(), scoring=scoring, cv=kfold, verbose=1)
+                    result_dict[model] = result
 
             else:
                 continue
+        return result_dict
+        
 '''
     for name, model in models:
         cv_results = model_selection.cross_val_score(model, X_train, Y_train, cv=kfold, scoring=scoring)
