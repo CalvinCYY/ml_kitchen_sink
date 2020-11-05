@@ -47,7 +47,7 @@ def model_selection_cv(atoms_file, pairs_file, type_of_pred='regression', type_o
         for grid in grids:
             if model == grid:
                 if type_of_opt = 'random':
-                    result = random_opt(estimator=model.value(), param_deistrubution=grid.value(), n_iter =50, cv=kfold, verbose=1, random_state=rs, n_jobs=-1)
+                    result = random_opt(estimator=model.value(), param_distrubution=grid.value(), n_iter =50, cv=kfold, verbose=1, random_state=rs, n_jobs=-1)
                     result_dict[model] = result
                 elif type_of_opt = 'grid':
                     result = grid_opt(estimator=model.value(), param_grid=grid.value(), scoring=scoring, cv=kfold, verbose=1)
