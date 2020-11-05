@@ -3,7 +3,7 @@ import numpy as np
 import tqdm
 
 from sklearn import model_selection
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from ml_kitchen_sink.cv import params, models
 
 def random_opt(estimator=model, param_distrubution=grid, n_iter =50, cv=kfold, verbose=1, random_state=rs, n_jobs=-1):
