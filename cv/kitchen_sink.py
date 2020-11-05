@@ -6,7 +6,21 @@ from sklearn import model_selection
 from sklearn.model_selection import GridSearchCV
 from ml_kitchen_sink.cv import params, models
 
-def model_selection_cv(atoms_file, pairs_file, type_of_pred='regression', param_opt=False, rs=100, ts=0.2, n_splits=5, scoring='neg_mean_absolute_error'):
+def random_opt(estimator=model, param_distrubution=grid, n_iter =50, cv=kfold, verbose=1, random_state=rs, n_jobs=-1):
+    search = RandomizedSearchCV(estimator=estimator, param_distrubution=param_distrubution, n_iter =n_iter, cv=cv, verbose=verbose, random_state=random_state, n_jobs=n_jobs)
+    result = search.fit(X_train, Y_train)
+    print('Best Score: %s' % result.best_score_)
+    print('Best Hyperparameters: %s' % result.best_params_)
+    return result
+
+def grid_opt(estimator=model, param_grid=grid, scoring=scoring, cv=kfold, verbose=1):
+    search = GridSearchCV(estimator=estimator, param_grid=param_grid, scoring=scoring, cv=cv, verbose=verbose)
+    result = search.fit(X_train, Y_train)
+    print('Best Score: %s' % result.best_score_)
+    print('Best Hyperparameters: %s' % result.best_params_)
+    return result
+
+def model_selection_cv(atoms_file, pairs_file, type_of_pred='regression', type_of_opt='random' rs=100, ts=0.2, n_splits=5, scoring='neg_mean_absolute_error'):
 
     atoms_df = pd.read_pickle(atoms_file)
     pairs_df = pd.read_pickle(pairs_file)
@@ -18,19 +32,24 @@ def model_selection_cv(atoms_file, pairs_file, type_of_pred='regression', param_
     kfold = model_selection.KFold(n_splits = n_splits, shuffle = True, random_state = rs)
 
     if type_of_pred='regression':
-        models = Get_reg_models()
-        grids = Get_reg_params_grid()
-    elif type_of_pred='classification':
-        models = Get_class_models()
-        grids = Get_class_params_grid()
+        models = models.Get_reg_models()
+        grids = params.Get_reg_params_grid()
 
-    for name, model in models:
+    elif type_of_pred='classification':
+        models = models.Get_class_models()
+        grids = params.Get_class_params_grid()
+
+    else raise Exception("Only regression and classification predictions allowed")
+
+    result_dict = {}
+
+    for model in models:
         for grid in grids:
-            if name == grid.keys():
-                search = GridSearchCV(model, grid_search, scoring=scoring, cv=kfold, verbose=5)
-                result = search.fit(X_train, Y_train)
-                print('Best Score: %s' % result.best_score_)
-                print('Best Hyperparameters: %s' % result.best_params_)
+            if type_of_opt = 'random':
+                if name.keys() == grid.keys():
+                    result = random_opt(model, grid, scoring=scoring, cv=kfold, verbose=1, random_state=rs, n_jobs=-1)
+                    result_dict
+
             else:
                 continue
 '''
