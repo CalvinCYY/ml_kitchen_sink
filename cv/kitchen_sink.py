@@ -6,56 +6,64 @@ from sklearn import model_selection
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from ml_kitchen_sink.cv import params, models
 
-def random_opt(estimator=model, param_distrubution=grid, n_iter =50, cv=kfold, verbose=1, random_state=rs, n_jobs=-1):
-    search = RandomizedSearchCV(estimator=estimator, param_distrubution=param_distrubution, n_iter =n_iter, cv=cv, verbose=verbose, random_state=random_state, n_jobs=n_jobs)
-    result = search.fit(X_train, Y_train)
-    print('Best Score: %s' % result.best_score_)
-    print('Best Hyperparameters: %s' % result.best_params_)
-    return result
+def random_opt(estimator='model', param_distrubution='params',scoring='neg_mean_absolute_error', n_iter=50, cv=None, verbose=1, random_state='rs', n_jobs=-1):
+    search = RandomizedSearchCV(estimator, param_distrubution, n_iter, cv, verbose, random_state, n_jobs)
 
-def grid_opt(estimator=model, param_grid=grid, scoring=scoring, cv=kfold, verbose=1):
-    search = GridSearchCV(estimator=estimator, param_grid=param_grid, scoring=scoring, cv=cv, verbose=verbose)
-    result = search.fit(X_train, Y_train)
-    print('Best Score: %s' % result.best_score_)
-    print('Best Hyperparameters: %s' % result.best_params_)
-    return result
+    return search
 
-def model_selection_cv(atoms_file, pairs_file, type_of_pred='regression', type_of_opt='random' rs=100, ts=0.2, n_splits=5, scoring='neg_mean_absolute_error'):
+def grid_opt(estimator='model', param_grid='grid', scoring='neg_mean_absolute_error', cv='kfold', verbose=1):
+    search = GridSearchCV(estimator, param_grid, scoring, cv, verbose)
+
+    return search
+
+def model_selection_cv(atoms_file, pairs_file=None, splits=5, type_of_pred='regression', type_of_opt='random', rs=42, ts=0.2, scoring='neg_mean_absolute_error'):
 
     atoms_df = pd.read_pickle(atoms_file)
-    pairs_df = pd.read_pickle(pairs_file)
+
+    if pairs_file != None:
+        pairs_df = pd.read_pickle(pairs_file)
+
     X = np.array(atoms_df['atomic_rep']).tolist()
     Y = atoms_df['shift']
 
     X_train, X_test, Y_train, Y_test = model_selection.train_test_split(X, Y, test_size=ts, random_state=rs)
 
-    kfold = model_selection.KFold(n_splits = n_splits, shuffle = True, random_state = rs)
+    kfold = model_selection.KFold(n_splits=5, shuffle = True, random_state = rs)
 
-    if type_of_pred='regression':
-        models = models.Get_reg_models()
-        grids = params.Get_reg_params_grid()
+    if type_of_pred == 'regression':
+        model = models.Get_reg_models()
+        grid = params.Get_reg_param_grid()
 
-    elif type_of_pred='classification':
-        models = models.Get_class_models()
-        grids = params.Get_class_params_grid()
+    elif type_of_pred == 'classification':
+        model = models.Get_class_models()
+        grid = params.Get_class_param_grid()
 
-    else raise Exception("Only regression and classification predictions allowed")
+    else:
+        raise Exception("Only regression and classification predictions allowed")
 
     result_dict = {}
 
-    for model in models:
-        for grid in grids:
-            if model == grid:
-                if type_of_opt = 'random':
-                    result = random_opt(estimator=model.value(), param_distrubution=grid.value(), n_iter =50, cv=kfold, verbose=1, random_state=rs, n_jobs=-1)
+    for model_key, model_value in model.items():
+        for grid_key, grid_value in grid.items():
+            if model_key == grid_key:
+                print('grid match found')
+                if type_of_opt == 'random':
+                    search = random_opt(model_value, grid_value, n_iter =50, scoring=scoring, verbose=1, random_state=rs, n_jobs=-1, cv=kfold)
+                    result = search.fit(X_train, Y_train)
+                    print('Best Score: %s' % result.best_score_)
+                    print('Best Hyperparameters: %s' % result.best_params_)
                     result_dict[model] = result
-                elif type_of_opt = 'grid':
-                    result = grid_opt(estimator=model.value(), param_grid=grid.value(), scoring=scoring, cv=kfold, verbose=1)
+                elif type_of_opt =='grid':
+                    search = grid_opt(model_value, grid_value, scoring=scoring, cv=kfold, verbose=1)
+                    result = search.fit(X_train, Y_train)
+                    print('Best Score: %s' % result.best_score_)
+                    print('Best Hyperparameters: %s' % result.best_params_)
                     result_dict[model] = result
 
             else:
                 continue
     return result_dict
+    print(result_dict)
 
 '''
     for name, model in models:

@@ -13,11 +13,8 @@ def Get_reg_param_grid():
         #'min_impurity_decrease': [],
         #'ccp_alpha': [],
         },
-
-    'MLP':{
-
-        },
     }
+
     return params
 
 def Get_class_param_grid():

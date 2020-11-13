@@ -12,7 +12,7 @@ def Get_reg_models():
     models = {
     'DTR': DecisionTreeRegressor(),
     'KRR': KernelRidge(),
-    'EN': ElasticNe(),
+    'EN': ElasticNet(),
     'ADA': AdaBoostRegressor(),
     'SGD': SGDRegressor(),
     'MLP': MLPRegressor(),
@@ -22,7 +22,7 @@ def Get_reg_models():
     }
 
     return models
-    
+
 def Get_class_models():
     models = {
 
