@@ -6,7 +6,15 @@ from sklearn import model_selection
 from ml_kitchen_sink.cv import params, models
 from ml_kitchen_sink.cv.search_method import random_opt, grid_opt
 
-def model_selection_cv(atoms_file, pairs_file=None, splits=5, type_of_pred='regression', type_of_opt='random', rs=42, ts=0.2, scoring='neg_mean_absolute_error'):
+def model_selection_cv(atoms_file,
+                       pairs_file = None,
+                       splits = 5,
+                       type_of_pred = 'regression',
+                       type_of_opt = 'random',
+                       rs = 42,
+                       ts = 0.2,
+                       scoring = 'neg_mean_absolute_error',
+                       ):
 
     atoms_df = pd.read_pickle(atoms_file)
 
@@ -16,9 +24,16 @@ def model_selection_cv(atoms_file, pairs_file=None, splits=5, type_of_pred='regr
     X = np.array(atoms_df['atomic_rep']).tolist()
     Y = atoms_df['shift']
 
-    X_train, X_test, Y_train, Y_test = model_selection.train_test_split(X, Y, test_size=ts, random_state=rs)
+    X_train, X_test, Y_train, Y_test = model_selection.train_test_split(X,
+                                                                        Y,
+                                                                        test_size=ts,
+                                                                        random_state=rs,
+                                                                        )
 
-    kfold = model_selection.KFold(n_splits=splits, shuffle = True, random_state = rs)
+    kfold = model_selection.KFold(n_splits=splits,
+                                  shuffle = True,
+                                  random_state = rs,
+                                  )
 
     if type_of_pred == 'regression':
         model = models.Get_reg_models()
@@ -29,7 +44,7 @@ def model_selection_cv(atoms_file, pairs_file=None, splits=5, type_of_pred='regr
         grid = params.Get_class_param_grid()
 
     else:
-        raise Exception("Only regression and classification predictions allowed")
+        raise Exception("Only regression and classification predictions available")
 
     result_dict = {}
 
@@ -39,14 +54,29 @@ def model_selection_cv(atoms_file, pairs_file=None, splits=5, type_of_pred='regr
                 print('grid match found')
 
                 if type_of_opt == 'random':
-                    search = random_opt(model_value, grid_value,  scoring=scoring, cv=kfold, verbose=1, random_state=rs, n_jobs=-1 )
+                    search = random_opt(model_value,
+                                        grid_value,
+                                        scoring=scoring,
+                                        cv=kfold,
+                                        verbose=1,
+                                        random_state=rs,
+                                        n_jobs=-1,
+                                        )
+
                     result = search.fit(X_train, Y_train)
                     print('Best Score: %s' % result.best_score_)
                     print('Best Hyperparameters: %s' % result.best_params_)
                     result_dict[model_key] = result
 
                 elif type_of_opt =='grid':
-                    search = grid_opt(model_value, grid_value, scoring=scoring, n_jobs=-1, cv=kfold, verbose=1)
+                    search = grid_opt(model_value,
+                                      grid_value,
+                                      scoring=scoring,
+                                      n_jobs=-1,
+                                      cv=kfold,
+                                      verbose=1,
+                                      )
+
                     result = search.fit(X_train, Y_train)
                     print('Best Score: %s' % result.best_score_)
                     print('Best Hyperparameters: %s' % result.best_params_)
