@@ -3,18 +3,8 @@ import numpy as np
 import tqdm
 
 from sklearn import model_selection
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from ml_kitchen_sink.cv import params, models
-
-def random_opt(estimator='model', param_distrubution='params',scoring='neg_mean_absolute_error', n_iter=50, cv=None, verbose=1, random_state='rs', n_jobs=-1):
-    search = RandomizedSearchCV(estimator, param_distrubution, n_iter, cv, verbose, random_state, n_jobs)
-
-    return search
-
-def grid_opt(estimator='model', param_grid='grid', scoring='neg_mean_absolute_error', cv='kfold', verbose=1):
-    search = GridSearchCV(estimator, param_grid, scoring, cv, verbose)
-
-    return search
+from ml_kitchen_sink.cv.search_method import random_opt, grid_opt
 
 def model_selection_cv(atoms_file, pairs_file=None, splits=5, type_of_pred='regression', type_of_opt='random', rs=42, ts=0.2, scoring='neg_mean_absolute_error'):
 
@@ -28,7 +18,7 @@ def model_selection_cv(atoms_file, pairs_file=None, splits=5, type_of_pred='regr
 
     X_train, X_test, Y_train, Y_test = model_selection.train_test_split(X, Y, test_size=ts, random_state=rs)
 
-    kfold = model_selection.KFold(n_splits=5, shuffle = True, random_state = rs)
+    kfold = model_selection.KFold(n_splits=splits, shuffle = True, random_state = rs)
 
     if type_of_pred == 'regression':
         model = models.Get_reg_models()
@@ -47,18 +37,20 @@ def model_selection_cv(atoms_file, pairs_file=None, splits=5, type_of_pred='regr
         for grid_key, grid_value in grid.items():
             if model_key == grid_key:
                 print('grid match found')
+
                 if type_of_opt == 'random':
-                    search = random_opt(model_value, grid_value, n_iter =50, scoring=scoring, verbose=1, random_state=rs, n_jobs=-1, cv=kfold)
+                    search = random_opt(model_value, grid_value,  scoring=scoring, cv=kfold, verbose=1, random_state=rs, n_jobs=-1 )
                     result = search.fit(X_train, Y_train)
                     print('Best Score: %s' % result.best_score_)
                     print('Best Hyperparameters: %s' % result.best_params_)
-                    result_dict[model] = result
+                    result_dict[model_key] = result
+
                 elif type_of_opt =='grid':
-                    search = grid_opt(model_value, grid_value, scoring=scoring, cv=kfold, verbose=1)
+                    search = grid_opt(model_value, grid_value, scoring=scoring, n_jobs=-1, cv=kfold, verbose=1)
                     result = search.fit(X_train, Y_train)
                     print('Best Score: %s' % result.best_score_)
                     print('Best Hyperparameters: %s' % result.best_params_)
-                    result_dict[model] = result
+                    result_dict[model_key] = result
 
             else:
                 continue
