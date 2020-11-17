@@ -1,4 +1,11 @@
 from ml_kitchen_sink.cv.bayes_opt import gen_dataset, search, hyperopt
+from sklearn.model_selection import train_test_split
+from sklearn import pipeline
+import lightgbm as lgb
+import pandas as pd
+import numpy as np
+from hyperopt import hp
+from hyperopt.pyll.base import scope
 
 X, y = gen_dataset(n_samples=1000, n_features=100, n_classes=2)
 

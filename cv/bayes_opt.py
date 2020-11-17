@@ -3,11 +3,10 @@ Write code for Bayes Opt
 '''
 
 import lightgbm as lgb
-from sklearn import datasets
+from sklearn import datasets, pipeline
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
 import pandas as pd
 import numpy as np
-from sklearn import pipeline
 from hyperopt import hp, STATUS_OK, fmin, tpe, Trials
 import time
 
