@@ -6,5 +6,7 @@ def test_model_selection_cv():
     test_atoms = "test/test_dataset/test_df_atoms.pkl"
     test_pairs = "test/test_dataset/test_df_pairs.pkl"
 
-    result_dict = ks.model_selection_cv(test_atoms)
-    print(result_dict)
+    result_dict = bayes_opt.model_selection_cv(test_atoms)
+    print("val. score: %s" % opt.best_score_)
+    print("test score: %s" % opt.score(X_test, y_test))
+    print("best params: %s" % str(opt.best_params_))

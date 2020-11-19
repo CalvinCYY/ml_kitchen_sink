@@ -47,20 +47,20 @@ def model_selection_cv(atoms_file,
     X = np.array(atoms_df['atomic_rep']).tolist()
     Y = atoms_df['shift']
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=rs)
 
     pipe = Pipeline([
         ('model', DecisionTreeRegressor())
         ])
 
-        dtr_search = {
+    dtr_search = {
         'model': Categorical([DecisionTreeRegressor()]),
         'model__criterieon': Categorical(['mse', 'friedman_mse', 'mae']),
         'model__splitter': Categorical(['best', 'random']),
         'model__max_depth': Categorical(['None']),
         'model__min_samples_split': Integer(2, 20),
         'model__min_samples_leaf': Integer(1, 20),
-        'model__min_weight_fraction_leaf':,
+        'model__min_weight_fraction_leaf':Integer(0, 20),
         'model__max_features': Categorical(['auto', 'sqrt', 'log2']),
         'model__max_leaf_nodes': Categorical(['None']),
         'model__min_impurity_decrease':Integer(0,10),
@@ -71,11 +71,17 @@ def model_selection_cv(atoms_file,
         pipe,
         # (parameter space, # of evaluations)
         (dtr_search, 50),
-        cv=splits
+        scoring=scoring,
+        cv=splits,
+        random_state=rs
     )
 
+    return opt
+    
+'''
     opt.fit(X_train, y_train)
 
     print("val. score: %s" % opt.best_score_)
     print("test score: %s" % opt.score(X_test, y_test))
     print("best params: %s" % str(opt.best_params_))
+'''

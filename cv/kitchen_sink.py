@@ -3,7 +3,7 @@ import numpy as np
 import tqdm
 
 from sklearn import model_selection
-from ml_kitchen_sink.cv import params, models
+from ml_kitchen_sink.cv import grid_params, models
 from ml_kitchen_sink.cv.search_method import random_opt, grid_opt
 
 def model_selection_cv(atoms_file,
