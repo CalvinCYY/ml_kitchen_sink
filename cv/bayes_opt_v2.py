@@ -18,11 +18,16 @@ from skopt import BayesSearchCV
 from skopt.space import Real, Categorical, Integer
 from skopt.plots import plot_objective, plot_histogram
 
-from sklearn.datasets import load_digits
-from sklearn.svm import LinearSVC, SVC
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
-
+'''
+To Do:
+    Utilize pipeline fully
+    Tweak surrogate method
+    Implement more models
+    Add in loop for multiple models and params
+'''
 #point to df with x, y data
 def model_selection_cv(atoms_file,
                        pairs_file = None,
@@ -65,8 +70,8 @@ def model_selection_cv(atoms_file,
     opt = BayesSearchCV(
         pipe,
         # (parameter space, # of evaluations)
-        (dtr_search, 40),
-        cv=5
+        (dtr_search, 50),
+        cv=splits
     )
 
     opt.fit(X_train, y_train)
