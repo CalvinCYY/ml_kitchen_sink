@@ -45,7 +45,7 @@ def model_selection_cv(atoms_file,
         pairs_df = pd.read_pickle(pairs_file)
 
     X = np.array(atoms_df['atomic_rep']).tolist()
-    Y = atoms_df['shift']
+    y = atoms_df['shift']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=rs)
 
@@ -77,7 +77,7 @@ def model_selection_cv(atoms_file,
     )
 
     return opt
-    
+
 '''
     opt.fit(X_train, y_train)
 
