@@ -1,4 +1,4 @@
-from skopt import gp_minimize
+from skopt import gp_minimize, dump, load
 from skopt.space import Real, Categorical, Integer
 from skopt.plots import plot_objective, plot_histogram
 from skopt.utils import use_named_args
@@ -16,7 +16,7 @@ To Do:
     Add in loop for multiple models and params
 '''
 #point to df with x, y data
-test_atoms = "/Users/bd20841/dataset/atoms_df_data4.pkl"
+test_atoms = "/mnt/storage/home/bd20841/scratch/test_files/ml_cv/df_gen/atoms_df_data4.pkl"
 
 atoms_df = pd.read_pickle(test_atoms)
 #pairs_df = pd.read_pickle(pairs_file)
@@ -57,6 +57,7 @@ print('min_weight_fraction_leaf: {}'.format(reg_gp.x[4]))
 print('            max_features: {}'.format(reg_gp.x[5]))
 print('   min_impurity_decrease: {}'.format(reg_gp.x[6]))
 
+dump(reg_gp, 'dtr_result.pkl')
 '''
 def on_step(optim_result):
     """
