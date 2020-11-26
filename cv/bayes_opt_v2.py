@@ -78,7 +78,7 @@ def model_selection_cv(atoms_file,
 '''
 def on_step(optim_result):
     """
-    View scores after each iteration 
+    View scores after each iteration
     while performing Bayesian
     Optimization in Skopt"""
     score = dtr_opt.best_score_
