@@ -19,8 +19,11 @@ from skopt.space import Real, Categorical, Integer
 from skopt.plots import plot_objective, plot_histogram
 
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.pipeline import Pipeline
+#from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
+
+import pandas as pd
+import numpy as np
 '''
 To Do:
     Utilize pipeline fully
@@ -32,8 +35,6 @@ To Do:
 def model_selection_cv(atoms_file,
                        pairs_file = None,
                        splits = 5,
-                       type_of_pred = 'regression',
-                       type_of_opt = 'random',
                        rs = 42,
                        ts = 0.2,
                        scoring = 'neg_mean_absolute_error',
@@ -45,43 +46,50 @@ def model_selection_cv(atoms_file,
         pairs_df = pd.read_pickle(pairs_file)
 
     X = np.array(atoms_df['atomic_rep']).tolist()
-    Y = atoms_df['shift']
+    y = atoms_df['shift']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=rs)
 
-    pipe = Pipeline([
-        ('model', DecisionTreeRegressor())
-        ])
-
     dtr_search = {
-        'model': Categorical([DecisionTreeRegressor()]),
-        'model__criterieon': Categorical(['mse', 'friedman_mse', 'mae']),
-        'model__splitter': Categorical(['best', 'random']),
-        'model__max_depth': Categorical(['None']),
-        'model__min_samples_split': Integer(2, 20),
-        'model__min_samples_leaf': Integer(1, 20),
-        'model__min_weight_fraction_leaf':Integer(0, 20),
-        'model__max_features': Categorical(['auto', 'sqrt', 'log2']),
-        'model__max_leaf_nodes': Categorical(['None']),
-        'model__min_impurity_decrease':Integer(0,10),
-        'model__ccp_alpha': Real(1e-7, 1e+1, prior='log-uniform'),
+        'criterion': Categorical(['mse', 'friedman_mse', 'mae']),
+        'splitter': Categorical(['best', 'random']),
+        #'max_depth': Categorical(['None']),
+        'min_samples_split': Integer(2, 20),
+        'min_samples_leaf': Integer(1, 20),
+        'min_weight_fraction_leaf':Real(0, 0.5, prior='uniform'),
+        'max_features': Categorical(['auto', 'sqrt', 'log2']),
+        #'max_leaf_nodes': Categorical(['None']),
+        'min_impurity_decrease':Integer(0,10),
+        #'ccp_alpha': Real(0, 10, prior='log-uniform'),
     }
 
-    opt = BayesSearchCV(
-        pipe,
+    dtr_opt = BayesSearchCV(
+        DecisionTreeRegressor(),
         # (parameter space, # of evaluations)
-        (dtr_search, 50),
+        dtr_search,
+        n_iter=50,
         scoring=scoring,
         cv=splits,
         random_state=rs
     )
 
-    return opt
-    
-'''
-    opt.fit(X_train, y_train)
+    return dtr_opt, X_train, y_train, X_test, y_test
 
-    print("val. score: %s" % opt.best_score_)
-    print("test score: %s" % opt.score(X_test, y_test))
-    print("best params: %s" % str(opt.best_params_))
+'''
+def on_step(optim_result):
+    """
+    View scores after each iteration 
+    while performing Bayesian
+    Optimization in Skopt"""
+    score = dtr_opt.best_score_
+    print("best score: %s" % score)
+    if score >= -0.90:
+        print('Interrupting!')
+        return True
+
+    dtr_opt.fit(X_train, y_train)
+
+    print("val. score: %s" % dtr_opt.best_score_)
+    print("test score: %s" % dtr_opt.score(X_test, y_test))
+    print("best params: %s" % str(dtr_opt.best_params_))
 '''

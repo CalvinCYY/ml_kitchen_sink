@@ -2,7 +2,6 @@
 Write code for Bayes Opt
 '''
 
-import lightgbm as lgb
 from sklearn import datasets, pipeline
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
 import pandas as pd
@@ -71,7 +70,7 @@ def hyperopt(param_space, X_train, y_train, X_test, y_test, num_eval):
     start = time.time()
 
     def objective_function(params):
-        clf = lgb.LGBMClassifier(**params)
+        #clf = lgb.LGBMClassifier(**params)
         score = cross_val_score(clf, X_train, y_train, cv=5).mean()
         return {'loss': -score, 'status': STATUS_OK}
 
