@@ -15,8 +15,19 @@ To Do:
     Implement more models
     Add in loop for multiple models and params
 '''
+def on_step(optim_result):
+    """
+    View scores after each iteration
+    while performing Bayesian
+    Optimization in Skopt"""
+    score = reg_gp.best_score_
+    print("best score: %s" % score)
+    if score >= -0.90:
+        print('Interrupting!')
+        return True
+
 #point to df with x, y data
-test_atoms = "/mnt/storage/home/bd20841/scratch/test_files/ml_cv/df_gen/atoms_df_data4.pkl"
+test_atoms = "/Users/bd20841/dataset/atoms_df_data4.pkl"
 
 atoms_df = pd.read_pickle(test_atoms)
 #pairs_df = pd.read_pickle(pairs_file)
@@ -29,8 +40,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 dtr_space = [
     Categorical(['mse', 'friedman_mse', 'mae'], name='criterion'),
     Categorical(['best', 'random'], name='splitter'),
-    Integer(2, 20, name='min_samples_split'),
-    Integer(1, 20, name='min_samples_leaf'),
+    Integer(2, 40, name='min_samples_split'),
+    Integer(1, 40, name='min_samples_leaf'),
     Real(0, 0.5, prior='uniform', name='min_weight_fraction_leaf'),
     Categorical(['auto', 'sqrt', 'log2'], name='max_features'),
     Integer(0,10, name='min_impurity_decrease'),
@@ -57,7 +68,14 @@ print('min_weight_fraction_leaf: {}'.format(reg_gp.x[4]))
 print('            max_features: {}'.format(reg_gp.x[5]))
 print('   min_impurity_decrease: {}'.format(reg_gp.x[6]))
 
-dump(reg_gp, 'dtr_result.pkl')
+reg_gp.fit(X_test, y_test)
+
+dump(reg_gp, 'dtr_result_v2.pkl')
+
+print("val. score: %s" % reg_gp.best_score_)
+print("test score: %s" % reg_gp.score(X_test, y_test))
+print("best params: %s" % str(reg_gp.best_params_))
+
 '''
 def on_step(optim_result):
     """
