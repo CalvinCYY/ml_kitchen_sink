@@ -51,7 +51,7 @@ def model_selection_cv(atoms_file,
     for model_key, model_value in model.items():
         for grid_key, grid_value in grid.items():
             if model_key == grid_key:
-                print('grid match found')
+                print('key match found')
 
                 if type_of_opt == 'random':
                     search = random_opt(model_value,
