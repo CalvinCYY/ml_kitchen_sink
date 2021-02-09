@@ -4,6 +4,7 @@ Requirements:
   SKlearn
   SK-opt
   pandas
+  numpy
   
 
 Module for the hyperparameter optimization of sklearn algorithms in predicting NMR shifts
