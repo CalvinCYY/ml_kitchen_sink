@@ -4,6 +4,7 @@ from ml_kitchen_sink.kitchen_sink.modules.print_scores import print_scores
 from skopt import gp_minimize, dump, load, callbacks
 from skopt.callbacks import CheckpointSaver
 from skopt.utils import use_named_args
+from functools import wraps
 
 #from sklearn.pipeline import Pipeline
 #from ml_kitchen_sink.cv import gauss_grid
