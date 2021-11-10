@@ -68,11 +68,12 @@ class cross_validation(object):
 
         self.search_space, self.sklearn_model = search_space(self.algorithm)
 
-    def save_model(self, reg_gp, file, compress=0):
-        dump(reg_gp, file, compress=compress)
+    def save_model(self, file, compress=0):
+        dump(self.cv_model, file, compress=compress)
 
     def from_checkpoint(self, checkpoint_file):
         reg_gp = load(checkpoint_file)
+        self.cv_model = reg_gp
         print(reg_gp.fun)
         self.checkpoint = True
         return reg_gp
@@ -93,12 +94,10 @@ class cross_validation(object):
             x0 = reg_gp.x_iters
             y0 = reg_gp.func_vals
 
-            reg_gp = gp_minimize(objective, space, x0=x0, y0=y0, verbose=True, callback=[checkpoint_saver], n_jobs=-1)
+            self.cv_model = gp_minimize(objective, space, x0=x0, y0=y0, verbose=True, callback=[checkpoint_saver], n_jobs=-1)
 
         else:
-            reg_gp = gp_minimize(objective, space, verbose=True, callback=[checkpoint_saver], n_jobs=-1)
-
-        self.cv_model = reg_gp
+            self.cv_model = gp_minimize(objective, space, verbose=True, callback=[checkpoint_saver], n_jobs=-1)
 
         if save:
             filename = f"{self.algorithm}_{self.id}.pkl"
