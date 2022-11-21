@@ -4,6 +4,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.neural_network import MLPRegressor
 
 def search_space(alg):
 
@@ -44,16 +45,27 @@ def search_space(alg):
     elif alg == 'RFR':
         space = [
             Integer(100, 1000, name='n_estimators'),
-            Categorical(['mse'], name='criterion'),
+            Categorical(['mse', 'mae'], name='criterion'),
             Integer(2, 100, name='min_samples_split'),
             Integer(1, 100, name='min_samples_leaf'),
-            Real(0, 0.5, prior='uniform', name='min_weight_fraction_leaf'),
-            Categorical(['auto'], name='max_features'),
-            Integer(0,10, name='min_impurity_decrease'),
+            #Real(0, 0.5, prior='uniform', name='min_weight_fraction_leaf'),
+            #Categorical(['auto'], name='max_features'),
+            #Integer(0,10, name='min_impurity_decrease'),
             #Categorical(['True', 'False'], name='bootstrap'),
             #Categorical(['True', 'False'], name='oob_score'),
-            Real(0.0, 1.0, prior='log-uniform', name='ccp_alpha'),
+            #Real(0.0, 1.0, prior='log-uniform', name='ccp_alpha'),
             ]
-        regressor = RandomForestRegressor()
+        regressor = RandomForestRegressor(verbose=1)
 
+    elif alg == 'MLP':
+        space = [
+            Integer(10, 200, name='hidden_layer_sizes'),
+            Real(0.0001, 0.001, prior='uniform', name='alpha'),
+            Real(0.001, 0.01, prior='uniform', name='learning_rate_init'),
+            #Integer(100, 300, name='max_iter'),
+            Real(0.0, 1.0, prior='uniform', name='beta_1'),
+            Real(0.0, 0.999, prior='uniform', name='beta_2'),
+            Real(0.00, 0.0000001, prior='uniform', name='epsilon'),
+            ]
+        regressor = MLPRegressor(verbose=True, early_stopping=True)
     return space, regressor

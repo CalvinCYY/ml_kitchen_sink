@@ -1,4 +1,5 @@
 from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.preprocessing import StandardScaler
 from ml_kitchen_sink.kitchen_sink.modules.search_space import search_space
 from ml_kitchen_sink.kitchen_sink.modules.print_scores import print_scores
 from skopt import gp_minimize, dump, load, callbacks
@@ -41,15 +42,18 @@ class cross_validation(object):
 
     def check_args(self):
 
-        implemented_models = ['DTR', 'KRR', 'KNN', 'RFR']
+        implemented_models = ['DTR', 'KRR', 'KNN', 'RFR', 'MLP']
 
         if self.algorithm not in implemented_models:
             print(f'The algorithm {self.algorithm} has not been implemented (yet)')
 
-    def get_input(self, train_data, test_data, split=False):
+    def get_input(self, train_data, test_data, split=False, scale=False):
 
         X_train = train_data['atomic_rep'].to_list()
         X_test = train_data['shift']
+
+        if scale:
+            X_train = StandardScaler().fit_transform(X_train)
 
         if split:
             X_train, X_test, y_train, y_test = train_test_split(X_train, X_test)
@@ -61,7 +65,11 @@ class cross_validation(object):
         else:
             self.X = X_train
             self.y = X_test
-            self.test_X = test_data['atomic_rep'].to_list()
+            if scale:
+                y_train = test_data['atomic_rep'].to_list()
+                self.test_X = StandardScaler().fit_transform(y_train)
+            else:
+                self.test_X = test_data['atomic_rep'].to_list()
             self.test_y = test_data['shift']
 
     def get_space(self):
